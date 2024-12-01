@@ -2,6 +2,10 @@ import json
 import csv
 from datetime import datetime
 
+import json
+import csv
+from datetime import datetime
+
 
 class Note:
     def __init__(self, id: int, title: str, content: str, timestamp: str):
@@ -26,26 +30,27 @@ class Note:
             if choice == '1':
                 title = input("Введите заголовок заметки: ")
                 content = input("Введите содержимое заметки: ")
-                create_note(title, content)
+                Note.create_note(title, content)
             elif choice == '2':
-                list_notes()
+                Note.list_notes()
             elif choice == '3':
                 note_id = int(input("Введите ID заметки: "))
-                view_note(note_id)
+                Note.view_note(note_id)
             elif choice == '4':
                 note_id = int(input("Введите ID заметки для редактирования: "))
                 new_title = input("Введите новый заголовок: ")
                 new_content = input("Введите новое содержимое: ")
-                edit_note(note_id, new_title, new_content)
+                Note.edit_note(note_id, new_title, new_content)
             elif choice == '5':
                 note_id = int(input("Введите ID заметки для удаления: "))
-                delete_note(note_id)
+                Note.delete_note(note_id)
             elif choice == '6':
                 break
             else:
                 print("Неверный выбор, попробуйте снова.")
 
-    def load_notes(self):
+    @staticmethod
+    def load_notes():
         """Загружает список заметок из файла"""
         try:
             with open('notes.json', 'r') as file:
@@ -54,66 +59,74 @@ class Note:
         except FileNotFoundError:
             return []
 
-    def save_notes(self, notes):
+    @staticmethod
+    def save_notes(notes):
         """Сохраняет список заметок в файл"""
         with open('notes.json', 'w') as file:
             json.dump(notes, file, indent=4)
 
-    def create_note(self, title: str, content: str):
+    @staticmethod
+    def create_note(title: str, content: str):
         """Создает заметку и добавляет её в список"""
         timestamp = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        notes = self.load_notes()
+        notes = Note.load_notes()
         new_id = len(notes) + 1
         note = Note(new_id, title, content, timestamp)
-        notes.append(note.__dict__)
-        self.save_notes(notes)
+        notes.append(note.__dict__)  # сохраняем как словарь
+        Note.save_notes(notes)
 
-    def list_notes(self):
+    @staticmethod
+    def list_notes():
         """Выводит список всех заметок"""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         for note in notes:
             print(f"""ID: {note['id']}, Title: {
                   note['title']}, Timestamp: {note['timestamp']}""")
 
-    def view_note(self, id: int):
+    @staticmethod
+    def view_note(id: int):
         """Просмотр содержимого заметки по id"""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         for note in notes:
             if note['id'] == id:
                 print(f"""Title: {note['title']}\nContent: {
                       note['content']}\nTimestamp: {note['timestamp']}""")
 
-    def edit_note(self, id: int, new_title: str, new_content: str):
+    @staticmethod
+    def edit_note(id: int, new_title: str, new_content: str):
         """Редактирование заметки"""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         for note in notes:
             if note['id'] == id:
                 note['title'] = new_title
                 note['content'] = new_content
                 note['timestamp'] = datetime.now().strftime(
                     '%d-%m-%Y %H:%M:%S')
-        self.save_notes(notes)
+        Note.save_notes(notes)
 
-    def delete_note(self, id: int):
+    @staticmethod
+    def delete_note(id: int):
         """Удаление заметки по id"""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         notes = [note for note in notes if note['id'] != id]
-        self.save_notes(notes)
+        Note.save_notes(notes)
 
-    def import_notes_from_csv(self, filename: str):
+    @staticmethod
+    def import_notes_from_csv(filename: str):
         """Импортирует заметки из csv"""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         with open(filename, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 new_note = Note(int(row['id']), row['title'],
                                 row['content'], row['timestamp'])
                 notes.append(new_note.__dict__)
-        self.save_notes(notes)
+        Note.save_notes(notes)
 
-    def export_notes_to_csv(self, filename: str):
+    @staticmethod
+    def export_notes_to_csv(filename: str):
         """Экспортирует заметки в csv."""
-        notes = self.load_notes()
+        notes = Note.load_notes()
         with open(filename, 'w', newline='') as file:
             writer = csv.DictWriter(
                 file, fieldnames=['id', 'title', 'content', 'timestamp'])
