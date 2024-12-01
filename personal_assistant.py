@@ -50,7 +50,19 @@ class FinanceRecord:
 
 
 def calculator():
-    pass
+    while True:
+        print("\nКалькулятор:")
+        print("Введите арифметическое выражение или 'q' для выхода.")
+        expression = input("Введите выражение: ")
+
+        if expression.lower() == 'q':
+            break
+
+        try:
+            result = eval(expression)
+            print(f"Результат: {result}")
+        except Exception as e:
+            print(f"Ошибка: {e}")
 
 
 def main_menu():
